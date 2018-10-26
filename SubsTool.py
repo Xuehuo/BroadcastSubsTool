@@ -1,64 +1,97 @@
-
 # coding: utf-8
-
-# In[32]:
 
 import cv2
 import os
+import sys
+import getopt
 import codecs
+import io
 from PIL import Image, ImageFont, ImageDraw, ImageColor
 
+## Command Line: SubsTool -s <sourceTXT> [ -f <font file> ]
+def usage():
+    print(
+"""
+   Usage: python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
 
-# In[90]:
+        sourceTXT (necessary) : SubTitles in txt file, use Enter to split
+        fontfile  (optional)  : Font Family file 
+                    default   : MFShangYa_Noncommercial-Regular.otf
+"""
+    )
+
+def  del_file(path):
+    for i in os.listdir(path):
+        path_file = os.path.join(path,i)
+        if os.path.isfile(path_file):
+            os.remove(path_file)
+        else:
+             del_file(path_file)
 
 
-
-## ATTENTION!!! PARAMETERS NEEDED!!!
-# 所有文件均使用相对位置，所以ipynb文件需要与以下所有文件在同一目录
-# filename 为所读取字幕文件的文件名
-# fontname 为所使用的字体文件的文件名
-# fontsize为字体大小
-# bgcolor 为生成的图片的背景颜色，可以为Hexadecimal(String),RGB,HSL以及常用HTML颜色名 
-# subcoord 为字幕左上角坐标
-filename = "newchntest.txt"
+source=''
 fontname = "MFShangYa_Noncommercial-Regular.otf"
+
+## parse Args
+try:
+    options,args = getopt.getopt(sys.argv[1:],"hs:f:",["help","source=","font="])
+except getopt.GetoptError:
+    usage()
+    sys.exit()
+
+for name,value in options:
+    if name in ("-h","--help"):
+        usage()
+    if name in ("-s","--source"):
+        source=value
+        if(os.path.exists(source) is False):
+            print("source file doesn't exist")
+            exit(0)
+    else:
+        usage()
+        exit(0)
+    if name in ("-f","--font"):
+        fontname=value
+        print("Custom Font Family: "+fontname)
+
+if(os.path.exists(fontname) is False):
+    print("Font Family file "+fontname+" doesn't exist")
+    exit(0)
+
+# fontsize为字体大小
+# subcoord 为字幕左上角坐标
+# save_directory 字幕图片保存目录
 fontsize = 50
-bgcolor = "green"
 subcoord1 = (90,850)
 subcoord2 = (90,920)
+save_directory=os.path.splitext(os.path.split(source)[1])[0]
+if(os.path.exists(save_directory) is False):
+    os.mkdir(save_directory)
+print("\nThe directory and file under '"+save_directory+"/' will be deleted.\npress y to continue, other input will stop this script")
+if(str.lower(input()) != 'y'):
+    exit(0)
+del_file(save_directory)
 
-def to_unicode(listName):
-    for x in range(len(listName)):
-        listName[x] = listName[x].decode('gbk')
-    return listName
 
 ## 打开文件并读取字幕数据
-subText = open(filename,'r')
+subText = open(source,'r',encoding='utf-8')
 subList = subText.readlines()
-subList = to_unicode(subList)
-textLen = len(subList)
-print "File Successfully Read, {} Lines Found.".format(textLen)
+
+print("File Successfully Read, " + str(len(subList)) +" Lines Found.")
 
 ## 读取并设置字幕字体
 font = ImageFont.truetype(fontname, fontsize, 0, "gbk")
 
-for i in range(len(subList)/2):
+for i in range(0,int(len(subList))):
     ## 创建新图片
-    subString1 = subList[2*i]
-    subString2 = subList[2*i-1]
-    im = Image.new("RGB", (1920,1080), bgcolor)
+    # subString1 = subList[2*i]
+    # subString2 = subList[2*i-1]
+    im = Image.new("RGBA", (1920,1080))
     ## 创建绘图句柄
     draw = ImageDraw.Draw(im)
-    draw.text(subcoord1, subString1, font=font)
-    draw.text(subcoord2, subString2, font=font)
-    im.save("{}.jpg".format(i+1),"JPEG")
-
-
-# In[ ]:
-
-
-
-
-# In[ ]:
-
-
+    # draw.text(subcoord1, subString1, font=font)
+    # draw.text(subcoord2, subString2, font=font)
+    draw.text(subcoord2, subList[i], font=font)
+    dic=save_directory + "/" + save_directory.replace(" ","") + "-" + str(i) + ".png"
+    print(dic)
+    im.save(dic,"PNG")
