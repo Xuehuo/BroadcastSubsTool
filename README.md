@@ -7,7 +7,11 @@ Git
 
 Http
 * <a href='https://github.com/Xuehuo/BroadcastSubsTool/archive/master.zip'>Download</a>
-  
+
+## 运行环境
+* python3,cv2
+* `pip install opencv-python`
+
 ## 使用说明
 ```
 python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
