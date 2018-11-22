@@ -40,7 +40,7 @@ _usage="""
         fontfile  (optional)  : Font Family file 
                     default   : MFShangYa_Noncommercial-Regular.otf
  
-   Library PIL (pillow in python2) is necessary
+   Library PIL (pillow) is necessary
 
 """
 
