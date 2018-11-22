@@ -5,21 +5,49 @@ import sys
 import getopt
 import codecs
 import io
-from PIL import Image, ImageFont, ImageDraw, ImageColor
 
-## Command Line: SubsTool -s <sourceTXT> [ -f <font file> ]
-def usage():
+
+python_ver=sys.version_info.major
+
+def fix_input():
+    if python_ver == 2:
+        return raw_input()
+    else: #python3
+        return input()
+
+
+# Check PIL Library
+try:
+    from PIL import Image, ImageFont, ImageDraw, ImageColor
+except :
     print(
-"""
+'''
+Please install PIL
+
+Install Command:
+
+      pip install pillow
+Or:   pip3 install pillow (MacOS)
+
+''')
+    exit()
+    
+## Command Line: SubsTool -s <sourceTXT> [ -f <font file> ]
+_usage="""
    Usage: python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
 
         sourceTXT (necessary) : SubTitles in txt file, use Enter to split
         fontfile  (optional)  : Font Family file 
                     default   : MFShangYa_Noncommercial-Regular.otf
-"""
-    )
+ 
+   Library PIL (pillow) is necessary
 
-def  del_file(path):
+"""
+
+def usage():
+    print(_usage)
+
+def del_file(path):
     for i in os.listdir(path):
         path_file = os.path.join(path,i)
         if os.path.isfile(path_file):
@@ -27,6 +55,14 @@ def  del_file(path):
         else:
              del_file(path_file)
 
+filename_length=4
+
+def filename_fix(now):
+    
+    if len(str(now)) < filename_length :
+        return filename_fix('0'+str(now))
+    else:
+        return now
 
 source=''
 fontname = "MFShangYa_Noncommercial-Regular.otf"
@@ -46,9 +82,6 @@ for name,value in options:
         if(os.path.exists(source) is False):
             print("source file doesn't exist")
             exit(0)
-    else:
-        usage()
-        exit(0)
     if name in ("-f","--font"):
         fontname=value
         print("Custom Font Family: "+fontname)
@@ -56,6 +89,11 @@ for name,value in options:
 if(os.path.exists(fontname) is False):
     print("Font Family file "+fontname+" doesn't exist")
     exit(0)
+
+if source == "":
+    usage()
+    exit()
+
 
 # fontsize为字体大小
 # subcoord 为字幕左上角坐标
@@ -67,19 +105,28 @@ save_directory=os.path.splitext(os.path.split(source)[1])[0]
 if(os.path.exists(save_directory) is False):
     os.mkdir(save_directory)
 print("\nThe directory and file under '"+save_directory+"/' will be deleted.\npress y to continue, other input will stop this script")
-if(str.lower(input()) != 'y'):
+if(fix_input() != "y"):
     exit(0)
 del_file(save_directory)
 
 
 ## 打开文件并读取字幕数据
-subText = open(source,'r',encoding='utf-8')
+subText=None
+if python_ver == 2:
+    subText = open(source)
+else:
+    subText = open(source,'r',encoding='utf-8')
 subList = subText.readlines()
 
 print("File Successfully Read, " + str(len(subList)) +" Lines Found.")
 
 ## 读取并设置字幕字体
 font = ImageFont.truetype(fontname, fontsize, 0, "gbk")
+
+# create an image to implement `Clear Layout` in `Wirecast Play List` 
+im=Image.new("RGBA",(1920,1080))
+im.save(save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix("0") + "-Clear Layout" + ".png")
+
 
 for i in range(0,int(len(subList))):
     ## 创建新图片
@@ -91,6 +138,6 @@ for i in range(0,int(len(subList))):
     # draw.text(subcoord1, subString1, font=font)
     # draw.text(subcoord2, subString2, font=font)
     draw.text(subcoord2, subList[i], font=font)
-    dic=save_directory + "/" + save_directory.replace(" ","") + "-" + str(i) + ".png"
+    dic=save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix(str(i+1)) + ".png"
     print(dic)
     im.save(dic,"PNG")
