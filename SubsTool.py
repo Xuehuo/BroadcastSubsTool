@@ -5,19 +5,42 @@ import sys
 import getopt
 import codecs
 import io
-from PIL import Image, ImageFont, ImageDraw, ImageColor
 
+python_ver=sys.version_info.major
+
+if python_ver is 2:
+    print '''
+Please install python3 or use `python3` instead `python`
+'''
+    
+try:
+    from PIL import Image, ImageFont, ImageDraw, ImageColor
+except e:
+    print('''
+Please Check Python Library PIL
+
+Install Command : pip3 install PIL
+''')
+    
+    else:
+        print()
 ## Command Line: SubsTool -s <sourceTXT> [ -f <font file> ]
-def usage():
-    print(
-"""
+_usage="""
    Usage: python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
 
         sourceTXT (necessary) : SubTitles in txt file, use Enter to split
         fontfile  (optional)  : Font Family file 
                     default   : MFShangYa_Noncommercial-Regular.otf
+
+    If you are MacOS or Linux,Please install Python3 in www.python.org.
+    And You Command Line Will be:
+    
+        python3 SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
+        
 """
-    )
+
+def usage():
+    print(_usage)
 
 def  del_file(path):
     for i in os.listdir(path):
@@ -27,6 +50,14 @@ def  del_file(path):
         else:
              del_file(path_file)
 
+filename_length=4
+
+def filename_fix(now):
+    
+    if len(str(now)) < filename_length :
+        return filename_fix('0'+str(now))
+    else:
+        return now
 
 source=''
 fontname = "MFShangYa_Noncommercial-Regular.otf"
@@ -91,6 +122,6 @@ for i in range(0,int(len(subList))):
     # draw.text(subcoord1, subString1, font=font)
     # draw.text(subcoord2, subString2, font=font)
     draw.text(subcoord2, subList[i], font=font)
-    dic=save_directory + "/" + save_directory.replace(" ","") + "-" + str(i) + ".png"
+    dic=save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix(str(i)) + ".png"
     print(dic)
     im.save(dic,"PNG")
