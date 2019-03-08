@@ -6,14 +6,48 @@ import getopt
 import codecs
 import io
 
+## Command Line: SubsTool -s <sourceTXT> [ -f <font file> ]
 
-python_ver=sys.version_info.major
+python_ver = sys.version_info.major
+filename_length = 4
+source = ''
+fontname = "MFShangYa_Noncommercial-Regular.otf"
+_usage = """
+   Usage: python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
+
+        sourceTXT (necessary) : SubTitles in txt file, use Enter to split
+        fontfile  (optional)  : Font Family file 
+                    default   : MFShangYa_Noncommercial-Regular.otf
+ 
+   Library PIL (pillow) is necessary
+
+"""
+
+def usage():
+    print(_usage)
+
 
 def fix_input():
     if python_ver == 2:
         return raw_input()
-    else: #python3
+    else:
         return input()
+
+
+def del_file(path):
+    for i in os.listdir(path):
+        path_file = os.path.join(path,i)
+        if os.path.isfile(path_file):
+            os.remove(path_file)
+        else:
+             del_file(path_file)
+
+
+def filename_fix(now):
+    if len(str(now)) < filename_length :
+        return filename_fix('0' + str(now))
+    else:
+        return now
 
 
 # Check PIL Library
@@ -32,40 +66,6 @@ Or:   pip3 install pillow (MacOS)
 ''')
     exit()
     
-## Command Line: SubsTool -s <sourceTXT> [ -f <font file> ]
-_usage="""
-   Usage: python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
-
-        sourceTXT (necessary) : SubTitles in txt file, use Enter to split
-        fontfile  (optional)  : Font Family file 
-                    default   : MFShangYa_Noncommercial-Regular.otf
- 
-   Library PIL (pillow) is necessary
-
-"""
-
-def usage():
-    print(_usage)
-
-def del_file(path):
-    for i in os.listdir(path):
-        path_file = os.path.join(path,i)
-        if os.path.isfile(path_file):
-            os.remove(path_file)
-        else:
-             del_file(path_file)
-
-filename_length=4
-
-def filename_fix(now):
-    
-    if len(str(now)) < filename_length :
-        return filename_fix('0'+str(now))
-    else:
-        return now
-
-source=''
-fontname = "MFShangYa_Noncommercial-Regular.otf"
 
 ## parse Args
 try:
@@ -104,7 +104,7 @@ subcoord2 = (90,920)
 save_directory=os.path.splitext(os.path.split(source)[1])[0]
 if(os.path.exists(save_directory) is False):
     os.mkdir(save_directory)
-print("\nThe directory and file under '"+save_directory+"/' will be deleted.\npress y to continue, other input will stop this script")
+print("\nThe directory and file under '" + save_directory + "/' will be deleted.\npress y to continue, other input will stop this script")
 if(fix_input() != "y"):
     exit(0)
 del_file(save_directory)
@@ -112,19 +112,16 @@ del_file(save_directory)
 
 ## 打开文件并读取字幕数据
 subText=None
-if python_ver == 2:
-    subText = open(source)
-else:
-    subText = open(source,'r',encoding='utf-8')
+subText = open(source)
 subList = subText.readlines()
 
-print("File Successfully Read, " + str(len(subList)) +" Lines Found.")
+print("File Successfully Read, " + str(len(subList)) + " Lines Found.")
 
 ## 读取并设置字幕字体
 font = ImageFont.truetype(fontname, fontsize, 0, "gbk")
 
 # create an image to implement `Clear Layout` in `Wirecast Play List` 
-im=Image.new("RGBA",(1920,1080))
+im = Image.new("RGBA",(1920,1080))
 im.save(save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix("0") + "-Clear Layout" + ".png")
 
 
@@ -138,6 +135,6 @@ for i in range(0,int(len(subList))):
     # draw.text(subcoord1, subString1, font=font)
     # draw.text(subcoord2, subString2, font=font)
     draw.text(subcoord2, subList[i], font=font)
-    dic=save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix(str(i+1)) + ".png"
+    dic = save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix(str(i+1)) + ".png"
     print(dic)
     im.save(dic,"PNG")
