@@ -2,3 +2,7 @@ This is a sample.
 Line 2
 Line 3
 Line 4 end
+
+ATTENTION:
+1. Please use UTF-8 as default encoding
+2. It will generate a blank page when handling blank line

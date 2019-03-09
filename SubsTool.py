@@ -89,7 +89,7 @@ for name,value in options:
 if(os.path.exists(fontname) is False):
     print("Font Family file "+fontname+" doesn't exist")
     exit(0)
-
+source = "linbaian1.txt"
 if source == "":
     usage()
     exit()
@@ -111,11 +111,14 @@ del_file(save_directory)
 
 
 ## 打开文件并读取字幕数据
-subText=None
-subText = open(source)
-subList = subText.readlines()
-
-print("File Successfully Read, " + str(len(subList)) + " Lines Found.")
+try:
+    subText = open(source,"r",encoding='UTF-8')
+    subList = subText.readlines()
+except:
+    print("Warning: Please use UTF-8 Encoding instead of GBK")
+    subText = open(source,"r",encoding='gbk')
+    subList = subText.readlines()
+print("Read File Successfully, " + str(len(subList)) + " Lines Found.")
 
 ## 读取并设置字幕字体
 font = ImageFont.truetype(fontname, fontsize, 0, "gbk")
@@ -125,16 +128,35 @@ im = Image.new("RGBA",(1920,1080))
 im.save(save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix("0") + "-Clear Layout" + ".png")
 
 
-for i in range(0,int(len(subList))):
+# for i in range(0,len(subList)):
+counter = 1
+file_counter = 1
+while True:
+    if counter > len(subList):
+        break
     ## 创建新图片
-    # subString1 = subList[2*i]
-    # subString2 = subList[2*i-1]
+    subString1 = subList[counter-1]
+    if len(subList) == counter:
+        subString2 = ""
+    else:
+        subString2 = subList[counter]
+    if subString2.strip() is "":
+        counter -= 1
+    if subString1.strip() is "":
+        counter -= 1
+        subString1 = ""
+        subString2 = ""
     im = Image.new("RGBA", (1920,1080))
     ## 创建绘图句柄
     draw = ImageDraw.Draw(im)
-    # draw.text(subcoord1, subString1, font=font)
-    # draw.text(subcoord2, subString2, font=font)
-    draw.text(subcoord2, subList[i], font=font)
-    dic = save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix(str(i+1)) + ".png"
+    draw.text(subcoord1, subString1, font=font)
+    draw.text(subcoord2, subString2, font=font)
+    # draw.text(subcoord2, subList[i], font=font)
+    dic = save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix(str(file_counter)) + ".png"
     print(dic)
     im.save(dic,"PNG")
+    file_counter += 1
+    counter += 2
+
+im = Image.new("RGBA",(1920,1080))
+im.save(save_directory + "/" + save_directory.replace(" ","") + "-" + pow(10,filename_length)-1 + "-End" + ".png")
