@@ -19,13 +19,14 @@ Http
 ```
 python SubsTool.py -s <sourceTXT> [ -f <fontfile> ]
 ```
+* Sample: `python SubsTool.py -s Sample.txt`
 * sourceTXT (必须) : 字幕源文件
 * fontfile  (可选) : 自定义字体（默认MFShangYa_Noncommercial-Regular.otf）
 
-## 样例
-```
-python SubsTool.py -s Sample.txt
-```
+## 注意事项
+1. 使用UTF-8编码（GBK理论不会bug）
+2. 一张字幕图片中包含两行
+3. 遇到空行会生成一张空白字幕图片
 
 ## License 
 MIT
