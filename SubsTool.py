@@ -89,7 +89,7 @@ for name,value in options:
 if(os.path.exists(fontname) is False):
     print("Font Family file "+fontname+" doesn't exist")
     exit(0)
-source = "linbaian1.txt"
+   
 if source == "":
     usage()
     exit()
