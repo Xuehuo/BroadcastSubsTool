@@ -127,25 +127,17 @@ font = ImageFont.truetype(fontname, fontsize, 0, "gbk")
 im = Image.new("RGBA",(1920,1080))
 im.save(save_directory + "/" + save_directory.replace(" ","") + "-" + filename_fix("0") + "-Clear Layout" + ".png")
 
-
+if(len(subList)%2==1):
+    subList.append("")
+    
 # for i in range(0,len(subList)):
-counter = 1
-file_counter = 1
-while True:
-    if counter > len(subList):
-        break
+counter = 0
+file_counter=1
+while counter < len(subList) -1:
     ## 创建新图片
-    subString1 = subList[counter-1]
-    if len(subList) == counter:
-        subString2 = ""
-    else:
-        subString2 = subList[counter]
-    if subString2.strip() is "":
-        counter -= 1
-    if subString1.strip() is "":
-        counter -= 1
-        subString1 = ""
-        subString2 = ""
+    subString1 = subList[counter]
+    subString2 = subList[counter+1]
+    
     im = Image.new("RGBA", (1920,1080))
     ## 创建绘图句柄
     draw = ImageDraw.Draw(im)
